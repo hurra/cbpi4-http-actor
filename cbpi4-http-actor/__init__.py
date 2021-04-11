@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
     Property.Text(label="Request Body On", configurable=True, description="asdc"),
     Property.Text(label="Target URL Off", configurable=True, description="anc"),
     Property.Text(label="Request Body Off", configurable=True, description="asdc"),
+    Property.Select(label="Check Return Status Code", options=['YES','NO'], description="asdc"),
     Property.Select(label="Continous Mode", options=['YES','NO'], description="asdc"),
     Property.Number(label="Continous Interval", configurable=True, description="asd")
     ])
@@ -43,16 +44,21 @@ class HTTPActor(CBPiActor):
         self.s = requests.Session()
 
         if self.props.get("Check Certificate", "YES") == "YES":
-            self.cert = True
+            self.s.verify = True
         else:
-            self.cert = False
+            self.s.verify = False
 
         if self.props.get("Http Method", "GET") == "GET":
             self.httpmethod_get = True
         else:
             self.httpmethod_get = False
 
-        self.timeout = float(self.props.get("Request Timeout", 5))
+        if self.props.get("Check Return Status Code", "NO") == "YES":
+            self.check_statuscode = True
+        else:
+            self.check_statuscode = False            
+
+        self.s.timeout = float(self.props.get("Request Timeout", 5))
 
         pass
 
@@ -63,9 +69,13 @@ class HTTPActor(CBPiActor):
             url=self.props.get("Target URL Off")
 
         if self.httpmethod_get:
-            self.s.get(url, verify=self.cert, timeout=self.timeout)
+            repsonse = self.s.get(url)
         else:
-            self.s.post(url, verify=self.cert, timeout=self.timeout)
+            response = self.s.post(url)
+
+        if self.check_statuscode:
+            if response.status_code != 200:
+                raise Exception("Received Statuscode %s is not 200" % (response.status_code))
 
 
     async def on(self, power=0):
