@@ -28,10 +28,11 @@ logger = logging.getLogger(__name__)
     ])
 class HTTPActor(CBPiActor):
 
-    @action("action test lorenz", parameters={})
+    @action("Test On Off", parameters={})
     async def action(self, **kwargs):
         logger.info("Action triggered %s los" % kwargs)
         self.on()
+        await asyncio.sleep(5)
         self.off()
         logger.info("Action triggered %s ende" % kwargs)
         pass
@@ -69,9 +70,15 @@ class HTTPActor(CBPiActor):
 
 
         if self.continous_mode:
-            self._task = asyncio.create_task(self.set_continous_state())
+            self.continous_task = asyncio.create_task(self.set_continous_state())
+        else:
+            self.continous_task.cancel()
+
+
+        logger.info("Continous Mode: %s" % self.continous_mode)
 
         pass
+
 
     async def set_continous_state(self):
         logger.info('Starting Continous State Setter background task')
@@ -92,12 +99,12 @@ class HTTPActor(CBPiActor):
         pass
 
     def start_request(self, onoff):
-        logger.info("HTTPActor request onoff=%s start" % onoff)
         if onoff:
             url=self.props.get("Target URL On")
         else:
             url=self.props.get("Target URL Off")
 
+        logger.info("HTTPActor request onoff=%s url=%s start" % (onoff, url))
         if self.httpmethod_get:
             repsonse = self.s.get(url)
         else:
@@ -107,7 +114,7 @@ class HTTPActor(CBPiActor):
             if response.status_code != 200:
                 raise Exception("Received Statuscode %s is not 200" % (response.status_code))
 
-        logger.info("HTTPActor request onoff=%s end" % onoff)
+        logger.info("HTTPActor request onoff=%s url=%s end" % (onoff, url))
 
 
     async def on(self, power=0):
