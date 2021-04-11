@@ -3,9 +3,9 @@ from setuptools import setup
 setup(name='cbpi4-http-actor',
       version='0.0.1',
       description='CraftBeerPi Plugin',
-      author='',
-      author_email='',
-      url='',
+      author='Lorenz Röhrl',
+      author_email='sheepshit@gmx.de',
+      url='https://github.com/hurra/cbpi4-http-actor',
       include_package_data=True,
       package_data={
         # If any package contains *.txt or *.rst files, include them:
