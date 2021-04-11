@@ -3,5 +3,6 @@
 * different URLs for `ON` and `OFF`
 * set request timeout
 * set custom `ON` and `OFF` payload
-* continous mode to refresh remote state in interval even if internal state hasn't changed
+* continous mode to refresh remote state in custom interval even if internal state hasn't changed
 * disable certificate checking
+* optional check http response codes
