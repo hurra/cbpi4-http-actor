@@ -9,8 +9,7 @@ import random
 from cbpi.api import *
 
 import requests
-from urllib3.util.retry import Retry
-from requests.adapters import HTTPAdapter
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -58,11 +57,42 @@ class HTTPActor(CBPiActor):
         else:
             self.check_statuscode = False            
 
+        if self.props.get("Continous Mode", "NO") == "YES":
+            self.continous_mode = True
+        else:
+            self.continous_mode = False
+
+        self.continous_interval = float(self.props.get("Continous Interval", 5))
+
+
         self.s.timeout = float(self.props.get("Request Timeout", 5))
+
+
+        if self.continous_mode:
+            self._task = asyncio.create_task(self.set_continous_state())
+
+        pass
+
+    async def set_continous_state(self):
+        logger.info('Starting Continous State Setter background task')
+        while True:
+            start_time = int(time.time())
+            try:
+                self.start_request(self.state)
+            except Exception as e:
+                logger.error("Irgendeine Exception is aufgetreten: %s" % e)
+            
+            wait_time = start_time + self.continous_interval - int(time.time())
+            logger.info("Warte %s Zeit" % wait_time)
+            if wait_time < 0:
+                logger.warn("Continous Interval kann nicht gehalten werden, da zu klein und requests brauchen zu lange")
+            else:
+                await asyncio.sleep(wait_time)
 
         pass
 
     def start_request(self, onoff):
+        logger.info("HTTPActor request onoff=%s start" % onoff)
         if onoff:
             url=self.props.get("Target URL On")
         else:
@@ -77,18 +107,18 @@ class HTTPActor(CBPiActor):
             if response.status_code != 200:
                 raise Exception("Received Statuscode %s is not 200" % (response.status_code))
 
+        logger.info("HTTPActor request onoff=%s end" % onoff)
+
 
     async def on(self, power=0):
-        logger.info("ACTOR 1111 %s ON" % self.id)
-        logger.info("ACTOR 1111 %s ON" % self.props)
-        self.start_request(True)
+        logger.info("Actor %s ON" % self.id)
         self.state = True
+        self.start_request(True)
 
     async def off(self):
-        logger.info("ACTOR %s OFF " % self.id)
-        logger.info("ACTOR %s OFF" % self.props)
-        start_request(False)
+        logger.info("Actor %s OFF" % self.id)
         self.state = False
+        self.start_request(False)
 
     def get_state(self):
         return self.state
