@@ -1,0 +1,2 @@
+include cbpi4-http-actor/config.yaml
+recursive-include cbpi4-http-actor/static *
