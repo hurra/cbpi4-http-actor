@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(name='cbpi4-http-actor',
       version='0.0.1',
-      description='CraftBeerPi Plugin',
+      description='Generic CraftBeerPi HTTP Actor Plugin',
       author='Lorenz Röhrl',
       author_email='sheepshit@gmx.de',
       url='https://github.com/hurra/cbpi4-http-actor',
