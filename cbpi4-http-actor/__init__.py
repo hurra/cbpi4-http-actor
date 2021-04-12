@@ -95,13 +95,13 @@ class HTTPActor(CBPiActor):
             url = self.url_off
             payload = self.payload_off
 
-        logger.info("HTTPActor type=request_start onoff=%s url=\"%s\" payload=\"%s\" method_getpost=%s" % (onoff, url, payload, self.httpmethod_get))
+        logger.info("HTTPActor type=request_start onoff=%s url=\"%s\" payload=\"%s\" method_getpost=%s" % (onoff, url, payload.replace('"', '\\"'), self.httpmethod_get))
         if self.httpmethod_get:
             response = self.request_session.get(url, data=payload)
         else:
             response = self.request_session.post(url, data=payload)
 
-        logger.info("HTTPActor type=request_done onoff=%s url=\"%s\" http_statuscode=%s response_text=\"%s\"" % (onoff, url, response.status_code, response.text))
+        logger.info("HTTPActor type=request_done onoff=%s url=\"%s\" http_statuscode=%s response_text=\"%s\"" % (onoff, url, response.status_code, response.text.replace('"', '\\"')))
 
 
     async def on(self, power=0):
