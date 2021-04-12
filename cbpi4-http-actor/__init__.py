@@ -13,15 +13,15 @@ import time
 logger = logging.getLogger(__name__)
 
 @parameters([
-    Property.Select(label="Http Method", options=['GET','POST'], description="asdc"),
-    Property.Select(label="Check Certificate", options=['YES','NO'], description="asdc"),
-    Property.Number(label="Request Timeout", configurable=True, description="asd", default_value=5),
-    Property.Text(label="Target URL On", configurable=True, description="anc"),
-    Property.Text(label="Request Body On", configurable=True, description="asdc"),
-    Property.Text(label="Target URL Off", configurable=True, description="anc"),
-    Property.Text(label="Request Body Off", configurable=True, description="asdc"),
-    Property.Select(label="Continous Mode", options=['YES','NO'], description="asdc"),
-    Property.Number(label="Continous Interval", configurable=True, description="asd")
+    Property.Select(label="Http Method", options=['GET','POST'], description="HTTP method to use"),
+    Property.Select(label="Check Certificate", options=['YES','NO'], description="Enable or disable TLS certificate checking. This setting has no influence for unencrypted connections"),
+    Property.Number(label="Request Timeout", configurable=True, description="http request timeout in seconds (default 5)", default_value=5),
+    Property.Text(label="Target URL On", configurable=True, description="target url for state on. Must include a uri scheme (https://...)"),
+    Property.Text(label="Request Body On", configurable=True, description="This request body is passed in the corresponding on request"),
+    Property.Text(label="Target URL Off", configurable=True, description="target url for state off. Must include a uri scheme (https://...)"),
+    Property.Text(label="Request Body Off", configurable=True, description="This request body is passed in the corresponding off request"),
+    Property.Select(label="Continous Mode", options=['YES','NO'], description="Enable this if the remote url should be refreshed periodically even if our local actor state hasn't changed"),
+    Property.Number(label="Continous Interval", configurable=True, description="Refresh interval in seconds used in continous mode")
     ])
 class HTTPActor(CBPiActor):
 
