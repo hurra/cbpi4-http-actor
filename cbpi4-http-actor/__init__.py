@@ -55,8 +55,11 @@ class HTTPActor(CBPiActor):
         else:
             self.continous_mode = False
             
-        self.url_on=self.props.get("Target URL On")
-        self.url_off=self.props.get("Target URL Off")
+        self.url_on = self.props.get("Target URL On")
+        self.url_off = self.props.get("Target URL Off")
+
+        self.payload_on = self.props.get("Request Body On")
+        self.payload_off = self.props.get("Request Body Off")
 
         self.continous_interval = float(self.props.get("Continous Interval", 5))
 
@@ -94,15 +97,17 @@ class HTTPActor(CBPiActor):
 
     def start_request(self, onoff):
         if onoff:
-            url=self.url_on
+            url = self.url_on
+            payload = self.payload_on
         else:
-            url=self.url.off
+            url = self.url.off
+            payload = self.payload_off
 
-        logger.info("HTTPActor type=request_start onoff=%s url=%s" % (onoff, url))
+        logger.info("HTTPActor type=request_start onoff=%s url=%s payload=%s" % (onoff, url, payload))
         if self.httpmethod_get:
             repsonse = self.s.get(url)
         else:
-            response = self.s.post(url)
+            response = self.s.post(url, data=payload)
 
         logger.info("HTTPActor type=request_done onoff=%s url=%s http_statuscode=%s" % (onoff, url, response.status_code))
 
