@@ -5,4 +5,3 @@
 * set custom `ON` and `OFF` payload
 * continous mode to refresh remote state in custom interval even if internal state hasn't changed
 * disable certificate checking
-* optional check http response codes

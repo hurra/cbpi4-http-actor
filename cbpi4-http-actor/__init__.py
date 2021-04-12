@@ -1,5 +1,3 @@
-
-# -*- coding: utf-8 -*-
 import os
 from aiohttp import web
 import logging
@@ -22,13 +20,12 @@ logger = logging.getLogger(__name__)
     Property.Text(label="Request Body On", configurable=True, description="asdc"),
     Property.Text(label="Target URL Off", configurable=True, description="anc"),
     Property.Text(label="Request Body Off", configurable=True, description="asdc"),
-    Property.Select(label="Check Return Status Code", options=['YES','NO'], description="asdc"),
     Property.Select(label="Continous Mode", options=['YES','NO'], description="asdc"),
     Property.Number(label="Continous Interval", configurable=True, description="asd")
     ])
 class HTTPActor(CBPiActor):
 
-    @action("Test On Off", parameters={})
+    @action("Toggle on off once with 5 second pause", parameters={})
     async def action(self, **kwargs):
         logger.info("Action triggered %s los" % kwargs)
         self.on()
@@ -52,16 +49,14 @@ class HTTPActor(CBPiActor):
             self.httpmethod_get = True
         else:
             self.httpmethod_get = False
-
-        if self.props.get("Check Return Status Code", "NO") == "YES":
-            self.check_statuscode = True
-        else:
-            self.check_statuscode = False            
-
+    
         if self.props.get("Continous Mode", "NO") == "YES":
             self.continous_mode = True
         else:
             self.continous_mode = False
+            
+        self.url_on=self.props.get("Target URL On")
+        self.url_off=self.props.get("Target URL Off")
 
         self.continous_interval = float(self.props.get("Continous Interval", 5))
 
@@ -81,18 +76,17 @@ class HTTPActor(CBPiActor):
 
 
     async def set_continous_state(self):
-        logger.info('Starting Continous State Setter background task')
+        logger.info('Starting continous state setter background task')
         while True:
             start_time = int(time.time())
             try:
                 self.start_request(self.state)
             except Exception as e:
-                logger.error("Irgendeine Exception is aufgetreten: %s" % e)
+                logger.error("Unknown exception: %s" % e)
             
             wait_time = start_time + self.continous_interval - int(time.time())
-            logger.info("Warte %s Zeit" % wait_time)
             if wait_time < 0:
-                logger.warn("Continous Interval kann nicht gehalten werden, da zu klein und requests brauchen zu lange")
+                logger.warn("Continous interval kann nicht gehalten werden, da zu klein und requests brauchen zu lange")
             else:
                 await asyncio.sleep(wait_time)
 
@@ -100,30 +94,26 @@ class HTTPActor(CBPiActor):
 
     def start_request(self, onoff):
         if onoff:
-            url=self.props.get("Target URL On")
+            url=self.url_on
         else:
-            url=self.props.get("Target URL Off")
+            url=self.url.off
 
-        logger.info("HTTPActor request onoff=%s url=%s start" % (onoff, url))
+        logger.info("HTTPActor type=request_start onoff=%s url=%s" % (onoff, url))
         if self.httpmethod_get:
             repsonse = self.s.get(url)
         else:
             response = self.s.post(url)
 
-        if self.check_statuscode:
-            if response.status_code != 200:
-                raise Exception("Received Statuscode %s is not 200" % (response.status_code))
-
-        logger.info("HTTPActor request onoff=%s url=%s end" % (onoff, url))
+        logger.info("HTTPActor type=request_done onoff=%s url=%s http_statuscode=%s" % (onoff, url, response.status_code))
 
 
     async def on(self, power=0):
-        logger.info("Actor %s ON" % self.id)
+        logger.debug("Actor %s ON" % self.id)
         self.state = True
         self.start_request(True)
 
     async def off(self):
-        logger.info("Actor %s OFF" % self.id)
+        logger.debug("Actor %s OFF" % self.id)
         self.state = False
         self.start_request(False)
 
