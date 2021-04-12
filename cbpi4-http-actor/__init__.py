@@ -33,10 +33,11 @@ class HTTPActor(CBPiActor):
         self.off()
         logger.info("Action triggered %s ende" % kwargs)
         pass
-    
+
     def __init__(self, cbpi, id, props):
         super().__init__(cbpi, id, props)
         self.state = False
+        self.continous_task = None
 
         self.request_session = requests.Session()
 
@@ -66,25 +67,15 @@ class HTTPActor(CBPiActor):
 
         self.request_session.timeout = float(self.props.get("Request Timeout", 5))
 
-
-        if self.continous_mode:
-            self.continous_task = asyncio.create_task(self.set_continous_state())
-        else:
-            #TODO: irgendwie checkt er nicht, dass schon ein task exisitert
-            self.continous_task.cancel()
-
-
-        logger.info("Continous Mode: %s" % self.continous_mode)
-
         pass
 
 
     async def set_continous_state(self):
-        logger.info('Starting continous state setter background task')
+        logger.info('Starting continous state setter background task interval=%s'% (self.continous_interval))
         while True:
             start_time = int(time.time())
             try:
-                self.start_request(self.state)
+                await self.start_request(self.state)
             except Exception as e:
                 logger.error("Unknown exception: %s" % e)
             
@@ -96,7 +87,7 @@ class HTTPActor(CBPiActor):
 
         pass
 
-    def start_request(self, onoff):
+    async def start_request(self, onoff):
         if onoff:
             url = self.url_on
             payload = self.payload_on
@@ -116,17 +107,35 @@ class HTTPActor(CBPiActor):
     async def on(self, power=0):
         logger.debug("Actor %s ON" % self.id)
         self.state = True
-        self.start_request(True)
+        await self.start_request(True)
 
     async def off(self):
         logger.debug("Actor %s OFF" % self.id)
         self.state = False
-        self.start_request(False)
+        await self.start_request(False)
 
     def get_state(self):
         return self.state
+
+    async def start(self):
+        pass
+
+    async def stop(self):
+        if self.continous_task is not None:
+            self.continous_task.cancel()
+
+        pass
+
+    async def on_start(self):
+        pass
+
+    async def on_stop(self):
+        pass
+
     
     async def run(self):
+        if self.continous_mode:
+            self.continous_task = asyncio.create_task(self.set_continous_state())
         pass
 
 
