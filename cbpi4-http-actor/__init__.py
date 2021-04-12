@@ -38,12 +38,12 @@ class HTTPActor(CBPiActor):
         super().__init__(cbpi, id, props)
         self.state = False
 
-        self.s = requests.Session()
+        self.request_session = requests.Session()
 
         if self.props.get("Check Certificate", "YES") == "YES":
-            self.s.verify = True
+            self.request_session.verify = True
         else:
-            self.s.verify = False
+            self.request_session.verify = False
 
         if self.props.get("Http Method", "GET") == "GET":
             self.httpmethod_get = True
@@ -64,12 +64,13 @@ class HTTPActor(CBPiActor):
         self.continous_interval = float(self.props.get("Continous Interval", 5))
 
 
-        self.s.timeout = float(self.props.get("Request Timeout", 5))
+        self.request_session.timeout = float(self.props.get("Request Timeout", 5))
 
 
         if self.continous_mode:
             self.continous_task = asyncio.create_task(self.set_continous_state())
         else:
+            #TODO: irgendwie checkt er nicht, dass schon ein task exisitert
             self.continous_task.cancel()
 
 
@@ -100,16 +101,16 @@ class HTTPActor(CBPiActor):
             url = self.url_on
             payload = self.payload_on
         else:
-            url = self.url.off
+            url = self.url_off
             payload = self.payload_off
 
-        logger.info("HTTPActor type=request_start onoff=%s url=%s payload=%s" % (onoff, url, payload))
+        logger.info("HTTPActor type=request_start onoff=%s url=\"%s\" payload=\"%s\"" % (onoff, url, payload))
         if self.httpmethod_get:
-            repsonse = self.s.get(url)
+            repsonse = self.request_session.get(url)
         else:
-            response = self.s.post(url, data=payload)
+            response = self.request_session.post(url, data=payload)
 
-        logger.info("HTTPActor type=request_done onoff=%s url=%s http_statuscode=%s" % (onoff, url, response.status_code))
+        logger.info("HTTPActor type=request_done onoff=%s url=\"%s\" http_statuscode=%s response_text=\"%s\"" % (onoff, url, response.status_code, response.text))
 
 
     async def on(self, power=0):
