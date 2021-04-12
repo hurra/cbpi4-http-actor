@@ -95,9 +95,9 @@ class HTTPActor(CBPiActor):
             url = self.url_off
             payload = self.payload_off
 
-        logger.info("HTTPActor type=request_start onoff=%s url=\"%s\" payload=\"%s\"" % (onoff, url, payload))
+        logger.info("HTTPActor type=request_start onoff=%s url=\"%s\" payload=\"%s\" method_getpost=%s" % (onoff, url, payload, self.httpmethod_get))
         if self.httpmethod_get:
-            repsonse = self.request_session.get(url)
+            response = self.request_session.get(url, data=payload)
         else:
             response = self.request_session.post(url, data=payload)
 
