@@ -12,6 +12,7 @@ setup(name='cbpi4-http-actor',
       author='Lorenz Röhrl',
       author_email='sheepshit@gmx.de',
       url='https://github.com/hurra/cbpi4-http-actor',
+      license='GPLv3',
       include_package_data=True,
       package_data={
         # If any package contains *.txt or *.rst files, include them:
