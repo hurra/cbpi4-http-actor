@@ -20,7 +20,7 @@ setup(name='cbpi4-http-actor',
       'cbpi4-http-actor': ['*','*.txt', '*.rst', '*.yaml']},
       packages=['cbpi4-http-actor'],
       install_requires=[
-            'cbpi>=4.0.0.34',
+            'cbpi4>=4.0.0.34',
       ],
       long_description=long_description,
       long_description_content_type='text/markdown'
