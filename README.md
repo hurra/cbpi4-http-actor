@@ -1,5 +1,5 @@
 # Description
-Generic HTTP Actor Plugin for Craftbeerpi4 [https://github.com/craftbeerpi/craftbeerpi4/](https://github.com/PiBrewing/craftbeerpi4)
+Generic HTTP Actor Plugin for Craftbeerpi4 [https://github.com/PiBrewing/craftbeerpi4/](https://github.com/PiBrewing/craftbeerpi4)
 
 When updating from 0.0.3 to 0.0.4 continuous mode and continuous interval must be set up again. This is due to renamed configuration parameters. 
 # Features
