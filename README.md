@@ -18,7 +18,7 @@ When updating from 0.0.3 to 0.0.4 continuous mode and continuous interval must b
   * Target url off: `http://<your-device>/xml/jsonswitch.php?id=1&set=0`
  
 * `Shelly PlusPlugS`:
-  * HTTP method: `GET`
+  * HTTP method: `POST`
   * Target url on: `http://<your-device>/rpc`
   * Target url off: `http://<your-device>/rpc`
   * Request body on: `{"id":0,"method":"Switch.Set","params":{"id":0,"on":true}}`
